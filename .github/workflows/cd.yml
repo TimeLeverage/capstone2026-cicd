@@ -22,7 +22,7 @@ jobs:
 
       # Docker 이미지 빌드
       - name: Docker 이미지 빌드
-        run: docker compose build
+        run: docker build -t capstone2026-backend:latest ./backend
 
       # 이미지에 태그 붙이기 (버전: git commit 해시 사용)
       - name: 이미지 태그 설정
