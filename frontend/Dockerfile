@@ -1,13 +1,16 @@
-﻿# 1. 빌드 단계: Node.js를 이용해 React 빌드
-FROM node:18 AS build
+﻿# 1단계: 빌드 스테이지
+FROM eclipse-temurin:17-jdk-jammy AS builder
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run build
 
-# 2. 실행 단계: 빌드된 파일만 Nginx로 복사하여 실행
-FROM nginx:stable-alpine
-COPY --from=build /app/build /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# 소스코드 복사 및 빌드 실행 (gradle인 경우 ./gradlew 빌드 명령어로 변경)
+COPY . .
+RUN ./mvnw clean package
+
+# 2단계: 실행 스테이지
+FROM eclipse-temurin:17-jdk-jammy
+WORKDIR /app
+
+# 빌드 스테이지에서 생성된 jar 파일을 복사
+COPY --from=builder /app/target/*.jar app.jar
+
+ENTRYPOINT ["java", "-jar", "/app.jar"]
